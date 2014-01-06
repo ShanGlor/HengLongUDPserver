@@ -66,9 +66,11 @@ int main(int argc, char**argv)
     uint64_t time_us_recv;
     int frame_recv;
     henglongservconf_t conf;
+    uint8_t clisel, clinbr;
+    unsigned char servoff;
 
     if(2!=argc){
-        printf("This program is intented to be run on the raspberry pi in the heng long tank. \n USAGE: UDPserver server.config\n\n Copyright (C) 2014 Stefan Helmert\n\n");
+        printf("\nThis program is intented to be run on the raspberry pi in the heng long tank. \n\n USAGE: UDPserver server.config\n\n Copyright (C) 2014 Stefan Helmert <stefan.helmert@gmx.net>\n\n");
         return 0;
     }
 
@@ -101,9 +103,16 @@ int main(int argc, char**argv)
         for(i=0;i<4;i++){
             frame_recv |= recvline[i+10] << i*8;
         }
-
+        clinbr = recvline[14];
+        clisel = recvline[15];
+        servoff = recvline[16];
         recvline[n] = 0;
-        printf("RECV FRAME from %s:%u -- FRM_NBR: %5d, CLK_ERR: %16" PRIi64 ", BYTES recv: %3d, REFL_FRM: %#x\n", inet_ntoa(cliaddr.sin_addr), cliaddr.sin_port, frame_nbr_recv, get_us() - time_us_recv, n, frame_recv);
+        printf("RECV FRAME from %s:%u -- FRM_NBR: %5d, CLK_ERR: %16" PRIi64 ", BYTES recv: %3d, REFL_FRM: %#x, CLINBR: %d, CLISEL: %d, SERVOFF: %d\n", inet_ntoa(cliaddr.sin_addr), cliaddr.sin_port, frame_nbr_recv, get_us() - time_us_recv, n, frame_recv, clinbr, clisel, servoff);
+        if(servoff && 0==clinbr){
+            printf("Server stoped on client request.\n");
+            return 0; // Server beenden
+        }
+
     }
 }
 
