@@ -11,6 +11,7 @@
 #include <arpa/inet.h>
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
+#include "GPIOhenglong.h"
 
 uint64_t get_us(void)
 {
@@ -69,11 +70,9 @@ void *output_thread_fcn(void * arg)
 {
     printf("pthread output started\n");
 
-    //int fevdev;
     output_thread_t* args;
 
     args = (output_thread_t*) arg;
-    //fevdev = open(args->filename, O_RDONLY);
 
 
     while (1)
@@ -87,7 +86,7 @@ void *output_thread_fcn(void * arg)
             printf("*** Slave timeout! -- Slave %d\n", args->client_selected);
         }
 
-        usleep(200000);
+        sendCode(args->frame);
         printf("OUTPUT_THREAD -- FRAME: %#x\n", args->frame);
 
 
@@ -121,6 +120,8 @@ int main(int argc, char**argv)
         printf("\nThis program is intented to be run on the raspberry pi in the heng long tank. \n\n USAGE: UDPserver server.config\n\n Copyright (C) 2014 Stefan Helmert <stefan.helmert@gmx.net>\n\n");
         return 0;
     }
+
+    setup_io();
 
     memset(recvline, 0, 64*sizeof(unsigned char));
 
