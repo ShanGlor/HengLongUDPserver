@@ -1,0 +1,11 @@
+# depslib dependency file v1.0
+1388966292 source:/home/stefan/Proj/UDPserver/main.c
+	<pthread.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<stdio.h>
+	<string.h>
+	<sys/time.h>
+	<arpa/inet.h>
+	<inttypes.h>
+
