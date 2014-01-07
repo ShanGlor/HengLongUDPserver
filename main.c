@@ -88,11 +88,11 @@ void *output_thread_fcn(void * arg)
     while (1)
     {
         if(get_us()>args->timeout_master_us){
-            args->frame = 0xfe400f2c; // timeout
+            args->frame = 0; // timeout
             printf("*** Master timeout!\n");
         }
         if(get_us()>args->timeout_slave_us){
-            args->frame = 0xfe400f2c; // timeout
+            args->frame = 0; // timeout
             printf("*** Slave timeout! -- Slave %d\n", args->client_selected);
         }
 
