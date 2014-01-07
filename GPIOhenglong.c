@@ -100,40 +100,46 @@ void sendBit(int bit) {
 // Set up a memory region to access GPIO
 void setup_io() {
 
-   /* open /dev/mem */
-   if ((mem_fd = open("/dev/mem", O_RDWR|O_SYNC) ) < 0) {
+    /* open /dev/mem */
+    if ((mem_fd = open("/dev/mem", O_RDWR|O_SYNC) ) < 0) {
       printf("can't open /dev/mem \n");
       exit (-1);
-   }
+    }
 
-   /* mmap GPIO */
+    /* mmap GPIO */
 
-   // Allocate MAP block
-   if ((gpio_mem = malloc(BLOCK_SIZE + (PAGE_SIZE-1))) == NULL) {
+    // Allocate MAP block
+    if ((gpio_mem = malloc(BLOCK_SIZE + (PAGE_SIZE-1))) == NULL) {
       printf("allocation error \n");
       exit (-1);
-   }
+    }
 
-   // Make sure pointer is on 4K boundary
-   if ((unsigned long)gpio_mem % PAGE_SIZE)
+    // Make sure pointer is on 4K boundary
+    if ((unsigned long)gpio_mem % PAGE_SIZE)
      gpio_mem += PAGE_SIZE - ((unsigned long)gpio_mem % PAGE_SIZE);
 
-   // Now map it
-   gpio_map = (unsigned char *)mmap(
+    // Now map it
+    gpio_map = (unsigned char *)mmap(
       (caddr_t)gpio_mem,
       BLOCK_SIZE,
       PROT_READ|PROT_WRITE,
       MAP_SHARED|MAP_FIXED,
       mem_fd,
       GPIO_BASE
-   );
+    );
 
-   if ((long)gpio_map < 0) {
+    if ((long)gpio_map < 0) {
       printf("mmap error %d\n", (int)gpio_map);
       exit (-1);
-   }
+    }
 
-   // Always use volatile pointer!
-   gpio = (volatile unsigned *)gpio_map;
+    // Always use volatile pointer!
+    gpio = (volatile unsigned *)gpio_map;
+
+     // Switch the relevant GPIO pin to output mode
+    INP_GPIO(PIN); // must use INP_GPIO before we can use OUT_GPIO
+    OUT_GPIO(PIN);
+
+    GPIO_CLR = 1<<PIN;
 
 } // setup_io
