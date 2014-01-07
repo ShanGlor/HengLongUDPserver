@@ -68,8 +68,7 @@ henglongservconf_t getservconfig(char* conffilename)
 
 void *output_thread_fcn(void * arg)
 {
-    struct sched_param params;
-    pthread_t this_thread;
+
 
     printf("pthread output started\n");
 
@@ -77,10 +76,14 @@ void *output_thread_fcn(void * arg)
 
     args = (output_thread_t*) arg;
 
+    //set to realtime - maybe bad
+/*
+    struct sched_param params;
+    pthread_t this_thread;
     this_thread = pthread_self();
     params.sched_priority = sched_get_priority_max(SCHED_FIFO);
     pthread_setschedparam(this_thread, SCHED_FIFO, &params);
-
+*/
 
     while (1)
     {
@@ -95,12 +98,9 @@ void *output_thread_fcn(void * arg)
 
         sendCode(args->frame);
         printf("OUTPUT_THREAD -- FRAME: %#x\n", args->frame);
-
-
     }
 
     printf("Exiting output thread.\n");
-    //close(fevdev);
 
     pthread_exit(0);
 }
