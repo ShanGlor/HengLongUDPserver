@@ -68,11 +68,18 @@ henglongservconf_t getservconfig(char* conffilename)
 
 void *output_thread_fcn(void * arg)
 {
+    struct sched_param params;
+    pthread_t this_thread;
+
     printf("pthread output started\n");
 
     output_thread_t* args;
 
     args = (output_thread_t*) arg;
+
+    this_thread = pthread_self();
+    params.sched_priority = sched_get_priority_max(SCHED_FIFO);
+    pthread_setschedparam(this_thread, SCHED_FIFO, &params);
 
 
     while (1)
