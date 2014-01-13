@@ -22,7 +22,7 @@ uint64_t get_us(void)
 
 typedef struct henglongservconf_t
 {
-    char outdevname[256];
+    uint8_t outdev;
     uint16_t port;
     uint64_t timeout_ms;
 } henglongservconf_t;
@@ -47,13 +47,13 @@ henglongservconf_t getservconfig(char* conffilename)
 
     // defaults
     conf.timeout_ms = 200;
-    strcpy(conf.outdevname, "8");
+    conf.outdev = 8;
     conf.port = 32000;
 
     while(fgets(line, 256, configFile)){
         sscanf(line, "%16s %256s", parameter, value);
         if(0==strcmp(parameter,"OUTPUTDEV")){
-            sscanf(value, "%256s", conf.outdevname);
+            sscanf(value, "%" SCNu8, &conf.outdev);
         }
         if(0==strcmp(parameter,"PORT")){
             sscanf(value, "%" SCNu16, &conf.port);
@@ -133,7 +133,7 @@ int main(int argc, char**argv)
 
     conf = getservconfig(argv[1]);
 
-    setGPIOnbr(conf.port);
+    setGPIOnbr(conf.outdev);
 
     memset(recvline, 0, 64*sizeof(unsigned char));
 
