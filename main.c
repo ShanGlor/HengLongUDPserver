@@ -88,11 +88,11 @@ void *output_thread_fcn(void * arg)
     while (1)
     {
         if(get_us()>args->timeout_master_us){
-            args->frame = 0; // timeout
+            args->frame = 0xfe3c0f00; // timeout
             printf("*** Master timeout!\n");
         }
         if(get_us()>args->timeout_slave_us){
-            args->frame = 0; // timeout
+            args->frame = 0xfe3c0f00; // timeout
             printf("*** Slave timeout! -- Slave %d\n", args->client_selected);
         }
 
@@ -130,13 +130,15 @@ int main(int argc, char**argv)
 
     setup_io();
 
+
+    conf = getservconfig(argv[1]);
+
+    setGPIOnbr(conf.port);
+
     memset(recvline, 0, 64*sizeof(unsigned char));
 
     output_thread_args.client_selected = 0;
     if (pthread_create(&outthread, NULL, output_thread_fcn , (void *) &output_thread_args)) printf("failed to create thread\n");
-
-
-    conf = getservconfig(argv[1]);
 
     sockfd=socket(AF_INET,SOCK_DGRAM,0);
 

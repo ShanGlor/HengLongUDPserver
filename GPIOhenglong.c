@@ -52,11 +52,15 @@ volatile unsigned *gpio;
 
 // GPIO pin that connects to the Heng Long main board
 // (Pin 7 is the top right pin on the Pi's GPIO, next to the yellow video-out)
-#define PIN 8
+#define PIN g_gpio
 
 
+int g_gpio;
 
-
+void setGPIOnbr(int gpio)
+{
+    g_gpio = gpio;
+}
 
 
 // Sends one individual code to the main tank controller
