@@ -128,12 +128,11 @@ int main(int argc, char**argv)
         return 0;
     }
 
-    setup_io();
-
-
     conf = getservconfig(argv[1]);
 
     setGPIOnbr(conf.outdev);
+
+    setup_io();
 
     memset(recvline, 0, 64*sizeof(unsigned char));
 
