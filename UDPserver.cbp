@@ -31,9 +31,17 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Linker>
+			<Add option="-lpthread" />
+		</Linker>
+		<Unit filename="GPIOhenglong.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="GPIOhenglong.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="server.config" />
 		<Extensions>
 			<code_completion />
 			<debugger />
