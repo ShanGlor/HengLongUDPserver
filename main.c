@@ -51,7 +51,7 @@ typedef struct output_thread_t
     char* filename;
     int frame;
     outtty_t outtty;
-    FILE* outfh;
+    int outfh;
     uint64_t timeout_master_us, timeout_slave_us;
     uint8_t client_selected;
 } output_thread_t;
@@ -173,12 +173,13 @@ void *tty_output_thread_fcn(void * arg)
             printf("*** Slave timeout! -- Slave %d\n", args->client_selected);
         }
 
+        usleep(30000);
         fprintf(args->outfh, "%5d,%5d,%5d,%5d;", args->outtty.motor_l, args->outtty.motor_r, args->outtty.servo_pan, args->outtty.servo_tilt);
         printf("TTY_OUTPUT_THREAD -- L: %6d R: %6d x: %6d y: %6d\n", args->outtty.motor_l, args->outtty.motor_r, args->outtty.servo_pan, args->outtty.servo_tilt);
     }
 
     printf("Exiting output thread.\n");
-    fclose(args->outfh);
+    close(args->outfh);
 
     pthread_exit(0);
 }
@@ -216,17 +217,21 @@ int main(int argc, char**argv)
     if(TTY==conf.outtype){
         if(!(output_thread_args.outfh = open(conf.outdevfile, O_RDWR | O_NOCTTY))) {
             printf("failed to open %s\n", conf.outdevfile);
-            cfsetispeed(&ttyoptions, B115200);
-            cfsetospeed(&ttyoptions, B115200);
-            cfmakeraw(&ttyoptions);
-            ttyoptions.c_cflag |= (CLOCAL | CREAD | CS8);   // Enable the receiver and set local mode
-            ttyoptions.c_cflag &= ~CSTOPB;            // 1 stop bit
-            ttyoptions.c_cflag &= ~CRTSCTS;           // Disable hardware flow control
-            ttyoptions.c_cc[VMIN]  = 1;
-            ttyoptions.c_cc[VTIME] = 2;
-            tcsetattr(output_thread_args.outfh, TCSANOW, &ttyoptions);
             return 0;
         }
+        cfsetispeed(&ttyoptions, B115200);
+        cfsetospeed(&ttyoptions, B115200);
+        cfmakeraw(&ttyoptions);
+        ttyoptions.c_cflag |= (CLOCAL | CREAD | CS8);   // Enable the receiver and set local mode
+        ttyoptions.c_cflag &= ~CSTOPB;            // 1 stop bit
+        ttyoptions.c_cflag &= ~CRTSCTS;           // Disable hardware flow control
+        ttyoptions.c_cc[VMIN]  = 1;
+        ttyoptions.c_cc[VTIME] = 2;
+        tcsetattr(output_thread_args.outfh, TCSANOW, &ttyoptions);
+        output_thread_args.outtty.motor_l = 0;
+        output_thread_args.outtty.motor_r = 0;
+        output_thread_args.outtty.servo_pan = 0;
+        output_thread_args.outtty.servo_tilt = 0;
         if (pthread_create(&outthread, NULL, tty_output_thread_fcn , (void *) &output_thread_args)) printf("failed to create thread\n");
     }else{
         setGPIOnbr(conf.outdev);
