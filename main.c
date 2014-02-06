@@ -224,6 +224,7 @@ int main(int argc, char**argv)
             ttyoptions.c_cflag &= ~CRTSCTS;           // Disable hardware flow control
             ttyoptions.c_cc[VMIN]  = 1;
             ttyoptions.c_cc[VTIME] = 2;
+            tcsetattr(output_thread_args.outfh, TCSANOW, &ttyoptions);
             return 0;
         }
         if (pthread_create(&outthread, NULL, tty_output_thread_fcn , (void *) &output_thread_args)) printf("failed to create thread\n");
