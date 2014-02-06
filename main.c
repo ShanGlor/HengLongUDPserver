@@ -11,6 +11,8 @@
 #include <arpa/inet.h>
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
+#include <fcntl.h>      // File control definitions
+#include <termios.h>    // POSIX terminal control definitions
 #include "GPIOhenglong.h"
 
 uint64_t get_us(void)
@@ -193,6 +195,7 @@ int main(int argc, char**argv)
     pthread_t outthread;
     output_thread_t output_thread_args;
     RCdatagram_t RCdata;
+    struct termios ttyoptions;    // Terminal options
 
 
     if(2!=argc){
@@ -211,8 +214,16 @@ int main(int argc, char**argv)
 
 
     if(TTY==conf.outtype){
-        if(!(output_thread_args.outfh = fopen(conf.outdevfile,"wb"))) {
+        if(!(output_thread_args.outfh = open(conf.outdevfile, O_RDWR | O_NOCTTY))) {
             printf("failed to open %s\n", conf.outdevfile);
+            cfsetispeed(&ttyoptions, B115200);
+            cfsetospeed(&ttyoptions, B115200);
+            cfmakeraw(&ttyoptions);
+            ttyoptions.c_cflag |= (CLOCAL | CREAD | CS8);   // Enable the receiver and set local mode
+            ttyoptions.c_cflag &= ~CSTOPB;            // 1 stop bit
+            ttyoptions.c_cflag &= ~CRTSCTS;           // Disable hardware flow control
+            ttyoptions.c_cc[VMIN]  = 1;
+            ttyoptions.c_cc[VTIME] = 2;
             return 0;
         }
         if (pthread_create(&outthread, NULL, tty_output_thread_fcn , (void *) &output_thread_args)) printf("failed to create thread\n");
