@@ -148,7 +148,7 @@ void *output_thread_fcn(void * arg)
 
 void *tty_output_thread_fcn(void * arg)
 {
-
+    char outstr[32];
 
     printf("pthread tty_output started\n");
 
@@ -174,7 +174,8 @@ void *tty_output_thread_fcn(void * arg)
         }
 
         usleep(30000);
-        fprintf(args->outfh, "%5d,%5d,%5d,%5d;", args->outtty.motor_l, args->outtty.motor_r, args->outtty.servo_pan, args->outtty.servo_tilt);
+        sprintf(outstr, "%5d,%5d,%5d,%5d;", args->outtty.motor_l, args->outtty.motor_r, args->outtty.servo_pan, args->outtty.servo_tilt);
+        write(args->outfh,outstr,25);
         printf("TTY_OUTPUT_THREAD -- L: %6d R: %6d x: %6d y: %6d\n", args->outtty.motor_l, args->outtty.motor_r, args->outtty.servo_pan, args->outtty.servo_tilt);
     }
 
@@ -219,6 +220,7 @@ int main(int argc, char**argv)
             printf("failed to open %s\n", conf.outdevfile);
             return 0;
         }
+
         cfsetispeed(&ttyoptions, B115200);
         cfsetospeed(&ttyoptions, B115200);
         cfmakeraw(&ttyoptions);
@@ -232,6 +234,7 @@ int main(int argc, char**argv)
         output_thread_args.outtty.motor_r = 0;
         output_thread_args.outtty.servo_pan = 0;
         output_thread_args.outtty.servo_tilt = 0;
+
         if (pthread_create(&outthread, NULL, tty_output_thread_fcn , (void *) &output_thread_args)) printf("failed to create thread\n");
     }else{
         setGPIOnbr(conf.outdev);
