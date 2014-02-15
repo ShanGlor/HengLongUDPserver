@@ -60,13 +60,13 @@ typedef struct RCdatagram_t
 {
     uint16_t frame_nbr;
     uint64_t time_us;
-    int frame_recv;
+    int32_t frame_recv;
     uint8_t clisel;
     uint8_t clinbr;
     uint8_t client_selected;
-    unsigned char servoff;
+    uint8_t servoff;
     outtty_t outtty;
-} RCdatagram_t;
+} __attribute__ ((packed)) RCdatagram_t;
 
 henglongservconf_t getservconfig(char* conffilename)
 {
